@@ -44,7 +44,7 @@ slots_per_day = {
     "Monday": [6, 7, 8]
 }
 
-# تعریف فاصله بین اسلات‌ها در هر روز (وزن فاصله: 0 برای پشت سر هم، 1 برای یک فاصله، 2 برای بیشتر)
+# تعریف فاصله بین اسلات‌ها در هر روز (وزن فاصله: 0 برای پشت سر هم، 2 برای بیشتر)
 distance = {}
 for day in days:
     day_slots = slots_per_day[day]
@@ -117,10 +117,10 @@ for s in range(len(time_slots)):
 
 # تابع هدف: کم کردن تداخل درس‌های رشته + فاصله اسلات‌های استاد + انحراف توزیع
 model += (
-    pulp.lpSum(y[d, s] * 100 for d in ["CS", "CE"] for s in range(len(time_slots))) +  # جریمه تداخل رشته‌ها
+    pulp.lpSum(y[d, s] * 500 for d in ["CS", "CE"] for s in range(len(time_slots))) +  # جریمه تداخل رشته‌ها
     pulp.lpSum(z[p, d, s1, s2] * distance[(s1, s2)] * 50 for p in professors for d in days
                for s1 in slots_per_day[d] for s2 in slots_per_day[d]) +  # جریمه فاصله اسلات‌ها
-    pulp.lpSum(dev_pos[s] + dev_neg[s] for s in range(len(time_slots))) * 10  # جریمه انحراف توزیع
+    pulp.lpSum(dev_pos[s] + dev_neg[s] for s in range(len(time_slots))) * 20  # جریمه انحراف توزیع
 ), "Minimize_Objective"
 
 # حل مدل
