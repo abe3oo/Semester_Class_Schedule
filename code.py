@@ -135,6 +135,31 @@ if no_overlap_same_input:
                 model += assign_vars[(sec1, prof1, time1)] + assign_vars[(sec2, prof2, time2)] <= 1
 #اگه دو سکشن از درس‌های یه ورودی هم‌زمان باشن (has_overlap) و سکشن‌ها متفاوت باشن (sec1 != sec2)، جمع متغیرهای باینریشون باید حداکثر 1 باشه.
 
+# محدودیت: تمام سکشن‌های یک درس باید توسط یک استاد تدریس شوند
+prof_assignment = {}
+for course in courses:
+    for prof in professors:
+        if course in professors[prof]['teachable_courses']:
+            prof_assignment[(course, prof)] = pulp.LpVariable(f"prof_assign_{course}_{prof}", cat='Binary')
+
+# محدودیت: هر درس دقیقاً به یک استاد تخصیص داده شود
+for course in courses:
+    model += pulp.lpSum(
+        prof_assignment[(course, prof)] for prof in professors if (course, prof) in prof_assignment
+    ) == 1
+
+# محدودیت: تخصیص سکشن‌ها به همان استاد انتخاب‌شده
+for course in courses:
+    if courses[course]['sections_needed'] > 1:  # فقط برای درس‌هایی که چند سکشن دارند
+        for prof in professors:
+            if course in professors[prof]['teachable_courses']:
+                for sec_id in range(courses[course]['sections_needed']):
+                    sec = (course, sec_id)
+                    model += pulp.lpSum(
+                        assign_vars[(sec, prof, time)] for time in professors[prof]['available_times']
+                        if (sec, prof, time) in assign_vars
+                    ) <= prof_assignment[(course, prof)] * courses[course]['sections_needed']
+
 # محدودیت: دو سکشن یک درس در یک روز
 if avoid_two_sections_same_day:
     for course, data in courses.items(): #برای درس‌هایی که بیش از یه سکشن دارن (مثل ریاضی1 با 2 سکشن)، یه متغیر باینری day_usage برای هر روز تعریف می‌شه.
