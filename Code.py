@@ -82,7 +82,7 @@ days = range(6)
 # محدودیت‌های خاص (فعال میکنم یا غیر فعال)
 prefer_consecutive_guest = True # کلاس استاد های مدعو ترجیجا پشت سر هم میشن
 prefer_consecutive_faculty = True # مثل مدعو ولی برای هیئت علمی
-avoid_two_sections_same_day = False # سعی میکنه دو سکشن یه درس تو یه روز نباشه
+avoid_two_sections_same_day = True # سعی میکنه دو سکشن یه درس تو یه روز نباشه
 no_overlap_same_input = False # درس های یک ورودی رو همزمان نمیذاره
 prefer_same_day_for_input = True # تا جای ممکن درس های یک ورودی رو توی یه روز میچینه
 max_units = 76  # حداکثر واحد های مجاز تو برنامه کلاسی
@@ -97,12 +97,7 @@ def has_overlap(time1, time2):
         return False
     return not (end1 <= start2 or end2 <= start1)
 
-"""
-section_instances = []
-for course, data in courses.items():
-    for sec_id in range(data['sections_needed']):
-        section_instances.append([course, sec_id])
-"""
+
 # جمع‌آوری سکشنا (تاپلی)
 # مثلاً برای "ریاضی1" که 2 سکشن نیاز داره، (ریاضی1, 0) و (ریاضی1, 1) به لیست اضافه میشه.
 section_instances = []
@@ -152,6 +147,18 @@ for prof, data in professors.items():
         assign_vars[(sec, prof, time)] for sec in section_instances for time in data['available_times'] if
         (sec, prof, time) in assign_vars) <= max_sec
 
+
+"""
+total_units = 0
+for sec in section_instances:
+    course = sec[0]
+    units = courses[course]['units']
+    for prof in professors:
+        for time in professors[prof]['available_times']:
+            if (sec, prof, time) in assign_vars:
+                total_units += assign_vars[(sec, prof, time)] * units
+model += total_units <= max_units
+"""
 # محدودیت: حداکثر واحد
 total_units = pulp.lpSum(
     assign_vars[(sec, prof, time)] * courses[sec[0]]['units'] for sec in section_instances for prof in professors for
@@ -165,10 +172,10 @@ for prof in professors:
     for (sec1, time1), (sec2, time2) in itertools.combinations(all_possible, 2):
         if has_overlap(time1, time2):
             model += assign_vars[(sec1, prof, time1)] + assign_vars[(sec2, prof, time2)] <= 1
-input_courses = defaultdict(list)
+
 # محدودیت: عدم تداخل برای درس‌های یک ورودی
 if no_overlap_same_input:
-
+    input_courses = defaultdict(list)
     for course, data in courses.items():
         for inp in data['inputs']:
             input_courses[inp].append(course)
@@ -236,6 +243,11 @@ if prefer_consecutive_guest or prefer_consecutive_faculty:
 
 # بهینه‌سازی: درس‌های یک ورودی در یک روز
 if prefer_same_day_for_input:
+    input_courses = defaultdict(list)
+    for course, data in courses.items():
+        for inp in data['inputs']:
+            input_courses[inp].append(course)
+
     for inp, inp_courses in input_courses.items():
         if len(inp_courses) > 1:
             days_used_inp = {day: pulp.LpVariable(f"days_used_inp_{inp}_{day}", cat='Binary') for day in days}
