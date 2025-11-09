@@ -6,9 +6,9 @@ from collections import defaultdict
 # ==============================================================================
 
 # محدودیت‌های سخت اختیاری
-SETTING_MAX_UNITS_HARD = False
-SETTING_NO_OVERLAP_INPUT_HARD = False
-SETTING_UNIFIED_PROFESSOR_HARD = True
+SETTING_MAX_UNITS_HARD = False # حداکثر واحد مجاز برای کل برنامه (Hard Constraint)
+SETTING_NO_OVERLAP_INPUT_HARD = False # عدم تداخل زمانی تمام دروس یک ورودی (توصیه: False در صورتی که فقط یک ورودی وجود دارد)
+SETTING_UNIFIED_PROFESSOR_HARD = True # یک درس باید فقط توسط یک استاد تدریس شود (توصیه: True)
 SETTING_DIFFERENT_DAYS_FOR_COURSE_HARD = True  # اجبار به توزیع سکشن‌های یک درس در روزهای متفاوت
 
 # تعیین تعداد سکشن‌هایی که محدودیت توزیع روز برای آن‌ها اعمال می‌شود.
@@ -16,17 +16,17 @@ SETTING_DIFFERENT_DAYS_FOR_COURSE_HARD = True  # اجبار به توزیع سک
 TARGET_SECTIONS_FOR_HARD_DISTRIBUTION = [2]
 
 # محدودیت‌های Soft (اهداف بهینه‌سازی)
-SETTING_MIN_SEC_SOFT = True
-SETTING_PREFER_CONSECUTIVE_DAYS_SOFT = True
-SETTING_PREFER_CONSECUTIVE_TIME_SOFT = True
-SETTING_PREFER_NO_CONFLICT_INPUT_SOFT = False
-SETTING_PREFER_DIFFERENT_DAYS_FOR_COURSE_SOFT = False
+SETTING_MIN_SEC_SOFT = True # تبدیل Min Sec استاد به هدف نرم (برای جلوگیری از Infeasible)
+SETTING_PREFER_CONSECUTIVE_DAYS_SOFT = True # ترجیح کمترین روز کاری برای استادان
+SETTING_PREFER_CONSECUTIVE_TIME_SOFT = True # ترجیح پیوستگی زمانی سکشن‌های استاد در طول روز
+SETTING_PREFER_NO_CONFLICT_INPUT_SOFT = False # کاهش تداخل بین دروس یک ورودی (Soft Constraint)
+SETTING_PREFER_DIFFERENT_DAYS_FOR_COURSE_SOFT = False #هدف نرم توضیع درس در روزهای مختلف
 
 # ضرایب جریمه (Penalty Weights)
-PENALTY_MIN_SEC_SLACK = 1000
-PENALTY_INPUT_CONFLICT = 100
-PENALTY_DAY_USAGE = 10
-PENALTY_TIME_GAP = 5
+PENALTY_MIN_SEC_SLACK = 1000 # جریمه سنگین برای عدم برآورده شدن Min Sec
+PENALTY_INPUT_CONFLICT = 100 # جریمه متوسط برای تداخل دروس یک ورودی
+PENALTY_DAY_USAGE = 10 # جریمه سبک برای استفاده از روزهای بیشتر توسط استادان
+PENALTY_TIME_GAP = 5 # جریمه سبک برای هر واحد فاصله زمانی (Time Gap)
 
 # ==============================================================================
 # --- ۱. تعریف داده‌ها  ---
